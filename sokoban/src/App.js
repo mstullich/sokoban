@@ -80,3 +80,46 @@ const GAME_STATE = {
       level, player, box
     }
   }
+  function GameReducer(state, action) {
+    switch (action.type) {
+      case ACTION.RestartLevel:
+        return {...getInitialState(state.levelNo), status: GAME_STATE.Running}
+      case ACTION.PlayNextLevel:
+        return {...getInitialState(state.levelNo+1), status: GAME_STATE.Running}
+      case ACTION.Move:
+        let d = {x: 0, y: 0} 
+        console.log(action.keyCode)
+        if (DIRECTION.Left === action.keyCode)  d.x-- 
+        if (DIRECTION.Right === action.keyCode) d.x++
+        if (DIRECTION.Up === action.keyCode)    d.y--
+        if (DIRECTION.Down === action.keyCode)  d.y++
+        // sprawdzanie czy sciana wystepuje w miejscu do ktorego chcemy sie przeniesc
+        if ( state.level[state.player.y+d.y][state.player.x+d.x] === ITEM.Wall) return {...state}
+        // sprawdzanie czy gracz proboje przepchnac sprzynke
+        if ( [...state.box].find(b => b.x===state.player.x+d.x && b.y===state.player.y+d.y) ) {
+          // sprwadzanie czy jest mozliwe przepchniecie skrzynki
+          if ( 
+            [ITEM.Playground, ITEM.Storage].includes(state.level[state.player.y+2*d.y][state.player.x+2*d.x])  // sprawdzanie czy jest miejsce puste za skrzynka
+            && ![...state.box].find(b => b.x === state.player.x+2*d.x && b.y === state.player.y+2*d.y)         // sprawdzanie czy za skrzynka nie stoi kolejna skyrzynka
+          ) { // przemieszczenie sie do nowej pozycji z skrzynka
+            let newState = {...state, player: {x: state.player.x+d.x, y: state.player.y+d.y}, box: [...state.box].map(b => {
+              // sprawdzanie czy gracz chce sie przeniesc w miejsce gdzie jest skrzynka
+              if ( (b.x === state.player.x+d.x) && (b.y === state.player.y+d.y) ) 
+                return {x: b.x+d.x, y: b.y+d.y}
+              else
+                return b
+            } ) }
+            // sprawdzanie czy gracz przeszedl poziom lub gra sie konczyla
+            let boxesInPlace = 0
+            newState.box.forEach(b=>{ if (newState.level[b.y][b.x] === ITEM.Storage) boxesInPlace++ })
+            if (boxesInPlace === newState.box.length) return {...newState, status:GAME_STATE.Done}
+            return newState
+          } else // nie mozna przeniesc poniewaz gracz musi stac w dobrym miejscu
+            return {...state}
+        }
+        // chodzenie bez przemieszczenia sie skrzynki
+        return {...state, player: {x: state.player.x+d.x, y: state.player.y+d.y}}
+      default:  
+    }
+    return state
+}
