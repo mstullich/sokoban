@@ -123,3 +123,26 @@ const GAME_STATE = {
     }
     return state
 }
+function getColor(y,x, color, player, box, isStorage) {
+    if (player.y === y && player.x === x)                   return ITEM.Player
+    if (box.find( b => (b.y===y && b.x===x)) && isStorage ) return COLOR_IN_PLACE
+    if (box.find( b => (b.y===y && b.x===x)))               return ITEM.Box  
+    return color
+  }
+  
+  export default function Sokoban() {
+    let [state, dispatch] = useReducer(GameReducer, getInitialState(0) )
+    console.log(state)
+  
+    function handleMove(e) {
+      if ( [DIRECTION.Left, DIRECTION.Right, DIRECTION.Up, DIRECTION.Down].includes(e.keyCode) ) {
+        e.preventDefault(); 
+        dispatch({type: ACTION.Move, keyCode: e.keyCode}) 
+      }
+    }
+  
+    useEffect(() => {
+      document.addEventListener('keydown', handleMove); 
+      return () => { document.removeEventListener('keydown', handleMove); }              // destroy
+    });  
+}
