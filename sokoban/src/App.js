@@ -42,3 +42,41 @@ const ITEM = {
   Player:           5,
   World:            8 
 }
+const GAME_STATE = { 
+    Running:          "RUNNING", 
+    Done:             "DONE" 
+  } 
+  const ACTION = {
+    Move:             "MOVE", 
+    RestartLevel:     "resetuj poziom",
+    PlayNextLevel:    "PLAY_NEXT_LEVEL"
+  
+  }
+  const DIRECTION = { 
+    Left:             37, 
+    Right:            39, 
+    Up:               38, 
+    Down:             40 
+  }
+  function getInitialState(levelNo) {
+    const LEVEL = LEVELS[levelNo]
+    let level = [], player = {x: null, y: null}, box = []
+  
+    for (let y=0; y<LEVEL.length; y++) {
+      level[y] = []
+      for (let x=0; x<LEVEL[y].length; x++) {
+        if ( [ITEM.Box, ITEM.Player].includes(LEVEL[y][x])) 
+         
+          level[y][x] = ITEM.Playground 
+        else 
+          level[y][x] = LEVEL[y][x] 
+        if (LEVEL[y][x] === ITEM.Box)     box.push({x:x, y:y})    // Ustawianie skrzynek
+        if (LEVEL[y][x] === ITEM.Player)  player = {x:x, y:y}     // Ustawianie pozycji gracza
+      }
+    }
+    return {
+      levelNo:  levelNo,
+      status:   GAME_STATE.Running,
+      level, player, box
+    }
+  }
