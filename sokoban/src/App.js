@@ -145,4 +145,17 @@ function getColor(y,x, color, player, box, isStorage) {
       document.addEventListener('keydown', handleMove); 
       return () => { document.removeEventListener('keydown', handleMove); }              // destroy
     });  
+    return (
+      <div className="Sokoban">
+      
+        <button onClick={()=> dispatch({type: ACTION.RestartLevel})}>Zresetuj poziom</button>
+        {state.status === GAME_STATE.Done && state.levelNo<LEVELS.length-1 && <button onClick={()=> dispatch({type: ACTION.PlayNextLevel})}>Next level</button>}
+        {state.status === GAME_STATE.Done && <h3>Przeszedłeś Poziom!</h3>}
+          {[...state.level].map( (row, y) => {
+            return <div key={`${y}`} style={{display: 'block', lineHeight: 0}}>{
+              row.map( (col, x) => {return <div key={`${y}-${x}`} style={{backgroundColor: COLOR[getColor(y,x, col, state.player, state.box, state.level[y][x]===ITEM.Storage)], width: "20px", height:"20px", display:"inline-block", border: state.level[y][x]===ITEM.World ? '1px solid transparent': '1px solid #ccc'}}/>})  
+            }</div> 
+          })}
+      </div>
+    );
 }
